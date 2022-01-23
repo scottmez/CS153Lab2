@@ -16,7 +16,7 @@ sys_fork(void)
 int
 sys_exit(void)
 {
-  exit();
+  exit(0); //Im assuming there was no error, so I am putting 0 (means successful execution[no errors])
   return 0;  // not reached
 }
 
