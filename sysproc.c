@@ -89,3 +89,11 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_add(void)
+{
+  int a = 2;
+  int b = 2020;
+  return a+b;
+}
