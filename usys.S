@@ -28,4 +28,5 @@ SYSCALL(dup)
 SYSCALL(getpid)
 SYSCALL(sbrk)
 SYSCALL(sleep)
-SYSCALL(uptime)
+SYSCALL(add)
+SYSCALL(exitS)   //part a

@@ -89,3 +89,21 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int sys_add(void)
+{
+  int a = 1;
+  int b = 2020;
+  return a+b;
+}
+
+//Part a
+int sys_exitS(void)
+{
+  int status;
+  if(argint(0, &status) < 0){   //Fetch the nth 32-bit system call argument.
+    return -1;
+  }
+  exitS(status);
+  return 0;  // not reached
+}
