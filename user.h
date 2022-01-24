@@ -25,6 +25,7 @@ int sleep(int);
 int uptime(void);
 int add(void);
 int exitS(int) __attribute__((noreturn));
+int waitS(int*);
 
 // ulib.c
 int stat(const char*, struct stat*);

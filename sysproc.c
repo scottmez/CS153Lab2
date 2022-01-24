@@ -104,3 +104,9 @@ sys_exitS(int status)
   exitS(status);
   return 0; //not reached
 }
+
+int 
+sys_waitS(int *status)
+{
+  return waitS(status);
+}
