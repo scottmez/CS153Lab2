@@ -89,3 +89,18 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int 
+sys_add(void)
+{
+  int a = 2;
+  int b = 2020;
+  return a+b;
+}
+
+int
+sys_exitS(int status)
+{
+  exitS(status);
+  return 0; //not reached
+}
