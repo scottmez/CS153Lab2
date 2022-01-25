@@ -20,7 +20,7 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
-#define SYS_add	   22
+#define SYS_add    22
 #define SYS_exitS  23       //part a
-
+#define SYS_waitS  24       //part b
 
