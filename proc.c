@@ -533,6 +533,8 @@ procdump(void)
   }
 }
 
+
+// New exit fucntion for part a
 void
 exitS(int status)
 {
@@ -540,6 +542,7 @@ exitS(int status)
   struct proc *p;
   int fd;
   curproc->status = status;
+
 
   if(curproc == initproc)
     panic("init exiting");
@@ -571,11 +574,13 @@ exitS(int status)
     }
   }
 
+
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
 }
+
 
 int
 waitS(int *status)
@@ -619,3 +624,4 @@ waitS(int *status)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
 }
+

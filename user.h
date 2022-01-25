@@ -24,8 +24,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int add(void);
-int exitS(int) __attribute__((noreturn));
-int waitS(int*);
+int exitS(int) __attribute__((noreturn)); //part a
+int waitS(int*);                          //part b
+
 
 // ulib.c
 int stat(const char*, struct stat*);

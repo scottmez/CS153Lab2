@@ -90,6 +90,7 @@ sys_uptime(void)
   return xticks;
 }
 
+
 int 
 sys_add(void)
 {
@@ -97,6 +98,7 @@ sys_add(void)
   int b = 2020;
   return a+b;
 }
+
 
 int
 sys_exitS(int status)
@@ -110,3 +112,4 @@ sys_waitS(int *status)
 {
   return waitS(status);
 }
+
