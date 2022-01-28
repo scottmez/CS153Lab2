@@ -633,7 +633,7 @@ waitS(int *status) //status passed in as input is THE ADDRESS that the status of
 int
 waitpid(int pid, int *status, int options)
 {
-  struct proc *p;
+  struct proc *p2;
   int havekids; // pid declared here in waitS
   struct proc *curproc = myproc();
   
@@ -641,24 +641,26 @@ waitpid(int pid, int *status, int options)
   for(;;){
     // Scan through table looking for exited children.
     havekids = 0;
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->pid != pid)
+    for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
+      if(p2->parent != curproc) //makes sure its a child of current process
+        continue;
+      if (p2->pid != pid) //makes sure it has a pid equal to the pid argument
         continue;
       havekids = 1;
-      if(p->state == ZOMBIE){
-        if (status != NULL) {
-          *status = p->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
-        }
+      if(p2->state == ZOMBIE){
         // Found one.
         // pid = p->pid;
-        kfree(p->kstack);
-        p->kstack = 0;
-        freevm(p->pgdir);
-        p->pid = 0;
-        p->parent = 0;
-        p->name[0] = 0;
-        p->killed = 0;
-        p->state = UNUSED;
+        kfree(p2->kstack);
+        p2->kstack = 0;
+        freevm(p2->pgdir);
+        p2->pid = 0;
+        p2->parent = 0;
+        p2->name[0] = 0;
+        p2->killed = 0;
+        p2->state = UNUSED;
+        if (status != NULL) {
+          *status = p2->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
+        }
         release(&ptable.lock);
         return pid;
       }
