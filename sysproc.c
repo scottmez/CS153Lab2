@@ -103,14 +103,28 @@ sys_add(void)
 
 int
 sys_exitS(void) 
-{                     
-  exitS(0);
+{   
+  int status;
+  if (argint(0, &status) < 0){
+    return -1;
+  }    
+  exitS(status);
   return 0; //not reached
 }
 
-//Part c
+int 
+sys_waitS(void)
+{                       
+  int *status;
+  if (argptr(0, (void*)&status, sizeof(*status)) < 0){
+    return -1;
+  }
+  return waitS(status);
+}
 
-int sys_waitpid(void){
+//Part c
+int 
+sys_waitpid(void){
   int pid;
   int* status;
   int options = 0;
@@ -118,22 +132,9 @@ int sys_waitpid(void){
   if (argint(0, &pid) < 0){
     return -1;
   }
-  if (argptr(1, (void*)&status, sizeof(*status))){
+  if (argptr(0, (void*)&status, sizeof(*status)) < 0){
     return -1;
   }
   return waitpid(pid, status, options);
-}
-
-
-int 
-sys_waitS(void)
-{                       
-  return waitS(NULL); 
-}
-
-int
-sys_waitpid(void) 
-{
-  return waitpid(0, NULL, 0);
 }
 

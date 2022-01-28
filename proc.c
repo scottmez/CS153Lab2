@@ -636,19 +636,21 @@ waitpid(int pid, int *status, int options)
   struct proc *p;
   int havekids; // pid declared here in waitS
   struct proc *curproc = myproc();
-  curproc->status = *status;//put status changing code here(the statement we have might not work cause pointers)
   
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
     havekids = 0;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->parent != curproc)
+      if(p->pid != pid)
         continue;
       havekids = 1;
       if(p->state == ZOMBIE){
+        if (status != NULL) {
+          *status = p->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
+        }
         // Found one.
-        pid = p->pid;
+        // pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);
