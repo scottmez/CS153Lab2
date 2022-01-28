@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "stdio.h"
 
 struct {
   struct spinlock lock;
@@ -581,12 +582,59 @@ exitS(int status)
   panic("zombie exit");
 }
 
-
+//function for part b
 int
-waitS(int *status)
-{
+waitS(int *status) //status passed in as input is THE ADDRESS that the status of the exited program should be assigned
+{                  //so if NULL is passed as argument, discard the input (by discard I think it means "not used")
   struct proc *p;
   int havekids, pid;
+  struct proc *curproc = myproc();
+  
+  
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != curproc)
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        // Found one.
+        pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        if (status != NULL) {
+          *status = p->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
+        }
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+//function for part c
+int
+waitpid(int pid, int *status, int options)
+{
+  struct proc *p;
+  int havekids; // pid declared here in waitS
   struct proc *curproc = myproc();
   curproc->status = *status;//put status changing code here(the statement we have might not work cause pointers)
   
@@ -624,4 +672,3 @@ waitS(int *status)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
 }
-

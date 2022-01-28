@@ -26,6 +26,7 @@ int uptime(void);
 int add(void);
 int exitS(int) __attribute__((noreturn)); //part a
 int waitS(int*);                          //part b
+int waitpid(int, int*, int);              //part c
 
 
 // ulib.c
