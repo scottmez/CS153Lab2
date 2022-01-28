@@ -533,6 +533,7 @@ procdump(void)
   }
 }
 
+
 // New exit fucntion for part a
 void
 exitS(int status)
@@ -540,7 +541,7 @@ exitS(int status)
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
-  curproc->status_exit = status;
+  curproc->status = status;
 
 
   if(curproc == initproc)

@@ -120,7 +120,9 @@ void            userinit(void);
 int             wait(void);
 void            wakeup(void*);
 void            yield(void);
-void  			exitS(int);		//part a
+void            exitS(int);
+int             waitS(int *);
+
 
 int             waitpid(int, int*, int);    //part c
 
