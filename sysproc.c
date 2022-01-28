@@ -107,3 +107,21 @@ int sys_exitS(void)
   exitS(status);
   return 0;  // not reached
 }
+
+//Part c
+
+int sys_waitpid(void){
+  int pid;
+  int* status;
+  int options = 0;
+
+  if (argint(0, &pid) < 0){
+    return -1;
+  }
+  if (argptr(1, (void*)&status, sizeof(*status))){
+    return -1;
+  }
+  return waitpid(pid, status, options);
+}
+
+

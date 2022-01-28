@@ -25,6 +25,8 @@ int sleep(int);
 int uptime(void);
 int add(void);
 int exitS(int);		//part a
+
+int waitpid(int, int*, int);
 	
 
 // ulib.c

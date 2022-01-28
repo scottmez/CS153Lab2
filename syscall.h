@@ -23,4 +23,6 @@
 #define SYS_add	   22
 #define SYS_exitS  23       //part a
 
+#define SYS_waitpid 25
+
 
