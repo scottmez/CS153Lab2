@@ -24,16 +24,9 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int add(void);
-<<<<<<< HEAD
-int exitS(int);		//part a
-
 int waitpid(int, int*, int);
-	
-=======
 int exitS(int) __attribute__((noreturn)); //part a
 int waitS(int*);                          //part b
-
->>>>>>> origin/master
 
 // ulib.c
 int stat(const char*, struct stat*);

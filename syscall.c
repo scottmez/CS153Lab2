@@ -133,12 +133,8 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_add]     sys_add,
 [SYS_exitS]   sys_exitS,      //part a
-<<<<<<< HEAD
-
 [SYS_waitpid] sys_waitpid,    //part c
-=======
 [SYS_waitS]   sys_waitS,      //part b
->>>>>>> origin/master
 };
 
 void
