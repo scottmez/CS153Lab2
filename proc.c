@@ -6,6 +6,7 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "stdio.h"
 
 struct {
   struct spinlock lock;
@@ -541,6 +542,9 @@ exitS(int status)
   struct proc *curproc = myproc();
   struct proc *p;
   int fd;
+  // cprintf("Status %d\n", status);
+  // cprintf("Status %d\n", curproc->status);
+
   curproc->status = status;
 
 
@@ -565,6 +569,8 @@ exitS(int status)
   // Parent might be sleeping in wait().
   wakeup1(curproc->parent);
 
+  
+
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
     if(p->parent == curproc){
@@ -573,6 +579,7 @@ exitS(int status)
         wakeup1(initproc);
     }
   }
+  // cprintf("Status end  %d\n", curproc->status);
 
 
   // Jump into the scheduler, never to return.
@@ -588,8 +595,8 @@ waitS(int *status)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  curproc->status = *status;//put status changing code here(the statement we have might not work cause pointers)
-  
+  // cprintf("wait: Status %d\n", status);
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -601,6 +608,57 @@ waitS(int *status)
       if(p->state == ZOMBIE){
         // Found one.
         pid = p->pid;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
+        if (status != NULL) {
+          *status = p->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
+        }
+        release(&ptable.lock);
+        return pid;
+      }
+    }
+
+    // No point waiting if we don't have any children.
+    if(!havekids || curproc->killed){
+      release(&ptable.lock);
+      return -1;
+    }
+
+    // Wait for children to exit.  (See wakeup1 call in proc_exit.)
+    sleep(curproc, &ptable.lock);  //DOC: wait-sleep
+  }
+}
+
+// Wait for a child process to exit and return its pid.
+// Return -1 if this process has no children.
+int
+waitpid(int pid, int *status, int options)
+{
+  struct proc *p;
+  int havekids;
+  struct proc *curproc = myproc();
+
+  acquire(&ptable.lock);
+  for(;;){
+    // Scan through table looking for exited children.
+    havekids = 0;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->pid != pid) //waits for a process to equal the one thats provided
+        continue;
+      havekids = 1;
+      if(p->state == ZOMBIE){
+        if (status){ //Saves the status if its not null
+          *status = p->status;
+        }
+        // cprintf("Status %d\n", curpoc->status);
+        // Found one.
+        // pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
         freevm(p->pgdir);

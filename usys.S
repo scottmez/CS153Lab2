@@ -30,6 +30,6 @@ SYSCALL(sbrk)
 SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(add)
-SYSCALL(exitS)  //part a
+SYSCALL(exitS)   //part a
+SYSCALL(waitpid) //part c
 SYSCALL(waitS)  //part b
-

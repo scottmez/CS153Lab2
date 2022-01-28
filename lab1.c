@@ -1,7 +1,13 @@
 #include "types.h"
 #include "stat.h"
 #include "user.h"
+
+#include "stddef.h"
+// #include "sys/wait.h"
+
+
 int exit_test(void);
+int waitpid_test(void);
 
 int main(int argc, char *argv[]){
 	switch(*argv[1]){
@@ -16,7 +22,11 @@ int main(int argc, char *argv[]){
 			printf(1,"\nSecond test\n");
 			break;
 		case '3':
-			printf(1,"\nThird Test\n");
+			printf(1,"\nTesting waitpid(pid,status,options) for Part c.\n");
+			waitpid_test();
+			break;
+		case '4':
+			printf(1,"\nTesting Bonus for Part e.\n");
 
 			break;
 	}
@@ -35,7 +45,52 @@ int exit_test(void){
 		printf(1,"Hello from the child proccess. PID: %d\n", pid);
 		exitS(0);
 	}
-	pid= wait();
+	pid= waitS(NULL);
 	printf(1, "Child has terminated \n");
+	return 0;
+}
+
+int waitpid_test(void){
+	int pid, pid2=0, status2;
+
+	char *argv[3] = {"./echo", "\"ECHO TEST\"", NULL};
+
+	printf(1,"Hello from the Parent proccess. PID: %d\n", getpid());
+
+	pid = fork();
+
+	if (pid > 0){
+		pid2 = fork();
+	}
+	if (pid < 0){
+		printf(1,"Error with fork()\n");
+		exitS(-1);
+	}
+	else if (pid2 == 0){
+		printf(1,"Hello from the child2 proccess. PID: %d\n", getpid());
+		sleep(20);
+		exec(argv[0], argv);
+		exitS(1);
+
+	}
+	else if (pid == 0){
+		printf(1,"Hello from the child1 proccess. PID: %d\n", getpid());
+		exec(argv[0], argv);
+		exitS(1);
+	}
+
+	else{
+		printf(1,"Hello from the Parent proccess. PID: %d\n", getpid());
+		pid2 = waitpid(pid2, &status2, 0);
+		// if (WIFEXITED(status)){
+		// 	printf(1,"Child ( %d ) terminated normally\n", pid); 
+		// }
+		// else if (WIFSIGNALED(status)){
+		// 	printf(1,"Child ( %d ) terminated by signal\n", pid); 
+		// }
+		printf(1,"Child ( %d ) terminated normally\n", pid2); 
+		printf(1,"Child ( %d ) terminated normally\n", pid); 
+
+	}
 	return 0;
 }
