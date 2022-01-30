@@ -633,7 +633,7 @@ waitS(int *status) //status passed in as input is THE ADDRESS that the status of
 int
 waitpid(int pid, int *status, int options)
 {
-  struct proc *p2;
+  struct proc *p;
   int havekids; // pid declared here in waitS
   struct proc *curproc = myproc();
   
@@ -641,25 +641,25 @@ waitpid(int pid, int *status, int options)
   for(;;){
     // Scan through table looking for exited children.
     havekids = 0;
-    for(p2 = ptable.proc; p2 < &ptable.proc[NPROC]; p2++){
-      if(p2->parent != curproc) //makes sure its a child of current process
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if(p->parent != curproc) //makes sure its a child of current process
         continue;
-      if (p2->pid != pid) //makes sure it has a pid equal to the pid argument
+      if (p->pid != pid) //makes sure it has a pid equal to the pid argument
         continue;
       havekids = 1;
-      if(p2->state == ZOMBIE){
+      if(p->state == ZOMBIE){
         // Found one.
         // pid = p->pid;
-        kfree(p2->kstack);
-        p2->kstack = 0;
-        freevm(p2->pgdir);
-        p2->pid = 0;
-        p2->parent = 0;
-        p2->name[0] = 0;
-        p2->killed = 0;
-        p2->state = UNUSED;
+        kfree(p->kstack);
+        p->kstack = 0;
+        freevm(p->pgdir);
+        p->pid = 0;
+        p->parent = 0;
+        p->name[0] = 0;
+        p->killed = 0;
+        p->state = UNUSED;
         if (status != NULL) {
-          *status = p2->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
+          *status = p->status; //should "return the terminated child exit status through the status argument" i.e. writes to the address of the pointer
         }
         release(&ptable.lock);
         return pid;
@@ -675,4 +675,31 @@ waitpid(int pid, int *status, int options)
     // Wait for children to exit.  (See wakeup1 call in proc_exit.)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
+}
+
+//part e
+void debug(void){
+  // Per-process state
+  // struct proc {
+  //   uint sz;                     // Size of process memory (bytes)
+  //   pde_t* pgdir;                // Page table
+  //   char *kstack;                // Bottom of kernel stack for this process
+  //   enum procstate state;        // Process state
+  //   int pid;                     // Process ID
+  //   struct proc *parent;         // Parent process
+  //   struct trapframe *tf;        // Trap frame for current syscall
+  //   struct context *context;     // swtch() here to run process
+  //   void *chan;                  // If non-zero, sleeping on chan
+  //   int killed;                  // If non-zero, have been killed
+  //   struct file *ofile[NOFILE];  // Open files
+  //   struct inode *cwd;           // Current directory
+  //   char name[16];               // Process name (debugging)
+  //   int status;                  // success (0) or failure (else)
+  // };
+  struct proc *curproc = myproc();
+
+  cprintf("\nPID:%d\n", curproc->pid);
+  cprintf("\nstatus:%d\n", curproc->status);
+
+  return;
 }

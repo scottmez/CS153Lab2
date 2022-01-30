@@ -24,4 +24,4 @@
 #define SYS_exitS  23       //part a
 #define SYS_waitS  24       //part b
 #define SYS_waitpid    25   //part c
-
+#define SYS_debug  26       //part e
