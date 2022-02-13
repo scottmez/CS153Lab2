@@ -124,7 +124,6 @@ void            exitS(int); //part a
 int             waitS(int *); //part b
 int             waitpid(int, int *, int); //part c
 
-
 // swtch.S
 void            swtch(struct context**, struct context*);
 
