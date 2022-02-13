@@ -34,3 +34,4 @@ SYSCALL(exitS)   //part a
 SYSCALL(waitS)  //part b
 SYSCALL(waitpid)  //part c 
 SYSCALL(debug)    //part e
+SYSCALL(changepriority) //Lab2 

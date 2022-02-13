@@ -139,6 +139,7 @@ sys_waitpid(void){
   return waitpid(pid, status, options);
 }
 
+//Part e
 int
 sys_debug(void) 
 {
@@ -146,3 +147,13 @@ sys_debug(void)
    return 0;
 }
 
+int 
+sys_changepriority(void)
+{
+   int newPriority;
+
+   if (argint(0, &newPriority) < 0){
+    return -1;
+  }
+  return waitS(newPriority);
+}

@@ -708,3 +708,12 @@ void debug(void){
 
   return;
 }
+
+//Lab2 priority func
+void changepriority(int newPriority) {
+  struct proc *curproc = mrproc();
+
+  curproc->priority = newPriority;
+
+  return;
+}
