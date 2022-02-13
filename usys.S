@@ -31,5 +31,5 @@ SYSCALL(sleep)
 SYSCALL(uptime)
 SYSCALL(add)
 SYSCALL(exitS)   //part a
-SYSCALL(waitpid) //part c
 SYSCALL(waitS)  //part b
+SYSCALL(waitpid)  //part c 

@@ -25,8 +25,9 @@ int sleep(int);
 int uptime(void);
 int add(void);
 int waitpid(int, int*, int);
-int exitS(int); __attribute__ ((noreturn))                           //part a
+int exitS(int) __attribute__((noreturn)); //part a
 int waitS(int*);                          //part b
+int waitpid(int, int*, int);              //part c
 
 // ulib.c
 int stat(const char*, struct stat*);
