@@ -102,20 +102,21 @@ sys_add(void)
 
 
 int
-sys_exitS(void) 
-{   
+sys_exitS(void)
+{
   int status;
-  if (argint(0, &status) < 0){
+  if(argint(0, &status) < 0){
     return -1;
-  }    
+  }
   exitS(status);
+
   return 0; //not reached
 }
 
 int 
-sys_waitS(void)
-{                       
+sys_waitS(void) {                    
   int *status;
+
   if (argptr(0, (void*)&status, sizeof(*status)) < 0){
     return -1;
   }

@@ -109,6 +109,8 @@ extern int sys_waitS(void);     //part b
 extern int sys_waitpid(void);   //part c
 extern int sys_debug(void);     //part e
 
+extern int sys_waitpid(void);   //part c
+
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
 [SYS_exit]    sys_exit,
@@ -133,6 +135,7 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_add]     sys_add,
 [SYS_exitS]   sys_exitS,      //part a
+[SYS_waitpid] sys_waitpid,    //part c
 [SYS_waitS]   sys_waitS,      //part b
 [SYS_waitpid] sys_waitpid,    //part c
 [SYS_debug]   sys_debug,      //part e
