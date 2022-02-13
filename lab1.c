@@ -8,6 +8,7 @@
 
 int exit_test(void);
 int waitpid_test(void);
+int debug_test(void);
 
 int main(int argc, char *argv[]){
 	switch(*argv[1]){
@@ -27,7 +28,7 @@ int main(int argc, char *argv[]){
 			break;
 		case '4':
 			printf(1,"\nTesting Bonus for Part e.\n");
-
+			debug_test();
 			break;
 	}
 	exitS(0);
@@ -127,5 +128,63 @@ int waitpid_test(void){
 	// 	printf(1,"Error with fork()\n");
 	// 	exitS(-1);
 	// }
+	return 0;
+}
+
+int debug_test(void){
+	int return_pid, local_status;
+	int pid[2] = {0,0};
+
+	//char *argv[3] = {"./echo", "\"ECHO TEST\"", NULL};
+
+	printf(1,"\n Hello from the Parent proccess. My PID is: %d\n", getpid());
+
+	debug();
+
+	pid[0] = fork();
+
+	debug();
+
+	if (pid[0] > 0){
+		debug();
+		pid[1] = fork();
+	}
+	else if (pid[0] == 0){
+		debug();
+		printf(1,"\n This is the child, PID#: %d and I will exit with status %d\n", getpid(), getpid() + 4);
+		exitS(getpid() + 4);
+	}
+	else {
+	 	printf(1,"Error with fork()\n");
+	 	exitS(-1);	 
+	}
+
+	debug();
+
+	if (pid[1] > 0){
+		debug();
+		//parent process
+	}
+	else if (pid[1] == 0){
+		debug();
+		printf(1,"\n This is the child, PID#: %d and I will exit with status %d\n", getpid(), getpid() + 4);
+		exitS(getpid() + 4);
+	}
+	else {
+	 	printf(1,"Error with fork()\n");
+	 	exitS(-1);	 
+	}
+	debug();
+
+	sleep(5);
+	printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid[1]);
+    return_pid = waitpid(pid[1], &local_status, 0);
+	printf(1, "\n This is the parent: Child# %d has exited with status %d\n",return_pid, local_status);
+
+	sleep(5);
+	printf(1, "\n This is the parent: Now waiting for child with PID# %d\n",pid[0]);
+    return_pid = waitpid(pid[0], &local_status, 0);
+	printf(1, "\n This is the parent: Child# %d has exited with status %d\n",return_pid, local_status);
+	
 	return 0;
 }

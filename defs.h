@@ -123,6 +123,7 @@ void            yield(void);
 void            exitS(int); //part a
 int             waitS(int *); //part b
 int             waitpid(int, int *, int); //part c
+void            debug();      //part e
 
 // swtch.S
 void            swtch(struct context**, struct context*);
