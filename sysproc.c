@@ -148,12 +148,12 @@ sys_debug(void)
 }
 
 int 
-sys_changepriority(void)
+sys_set_prior(void)
 {
-   int newPriority;
+   int prior_lvl;
 
-   if (argint(0, &newPriority) < 0){
+   if (argint(0, &prior_lvl) < 0){
     return -1;
   }
-  return waitS(newPriority);
+  return set_prior(prior_lvl);
 }

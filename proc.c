@@ -89,6 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 8; // I made this line. I put 8 cause its in the middle of 0-16
 
   release(&ptable.lock);
 
@@ -179,7 +180,7 @@ growproc(int n)
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
 int
-fork(void)
+fork(void) //I'm not sure how to modify "start time"
 {
   int i, pid;
   struct proc *np;
@@ -333,24 +334,22 @@ scheduler(void)
 
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
+    p = find_proc_with_lowest_prior_value(ptable); //need to make this function
 
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
 
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
 
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
+    
     release(&ptable.lock);
 
   }
@@ -710,10 +709,11 @@ void debug(void){
 }
 
 //Lab2 priority func
-void changepriority(int newPriority) {
-  struct proc *curproc = mrproc();
+void set_prior(int prior_lvl) {
+  struct proc *curproc = myproc();
 
-  curproc->priority = newPriority;
+  curproc->priority = prior_lvl;
+  sched(); //call sched() because the priority list has been changed
 
-  return;
+  return curproc->priority; //need to return an int so this will do for now
 }
