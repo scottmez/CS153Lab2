@@ -89,7 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  p->priority = 8; // I made this line. I put 8 cause its in the middle of 0-16
+  p->priority = 16; // initialize priority (given lowest by default)
 
   release(&ptable.lock);
 
@@ -333,13 +333,22 @@ scheduler(void)
     sti();
 
     // Loop over process table looking for process to run.
+    
     acquire(&ptable.lock);
-    p = find_proc_with_lowest_prior_value(ptable); //need to make this function
+    for(p= ptable.proc; p < &ptable.proc[NPROC];p++){
+      if(p->state != RUNNABLE) 
+        continue;
+      //
+      if (c->proc->priority  <  p->priority) {
+        c->proc = p;
+      }
+    }
 
     // Switch to chosen process.  It is the process's job
     // to release ptable.lock and then reacquire it
     // before jumping back to us.
-    c->proc = p;
+
+    //c->proc = p;
     switchuvm(p);
     p->state = RUNNING;
 
@@ -709,7 +718,7 @@ void debug(void){
 }
 
 //Lab2 priority func
-void set_prior(int prior_lvl) {
+int set_prior(int prior_lvl) {
   struct proc *curproc = myproc();
 
   curproc->priority = prior_lvl;
