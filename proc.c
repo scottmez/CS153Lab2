@@ -7,6 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "stdio.h"
+#include <time.h> //using for start time in fork()
 
 struct {
   struct spinlock lock;
@@ -180,16 +181,21 @@ growproc(int n)
 // Sets up stack to return as if from system call.
 // Caller must set state of returned proc to RUNNABLE.
 int
-fork(void) //I'm not sure how to modify "start time"
+fork(void) //need to create "start time"
 {
   int i, pid;
-  struct proc *np;
+  struct proc *np; //I think np stands for "next process" as in the one we're making with fork
   struct proc *curproc = myproc();
 
   // Allocate process.
   if((np = allocproc()) == 0){
     return -1;
   }
+  //now we know that process has been allocated (but not running yet)
+  np->start_time = ticks; //basically like clock() but clock() needs a process to reference and this one technically hasnt started yet so '0' will do
+  cprintf("start time %lf of %i\n", np->start_time, np->pid);
+  np->time_slices = 0; //initialize time_slices too
+
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
@@ -588,7 +594,10 @@ exitS(int status)
     }
   }
   // cprintf("Status end  %d\n", curproc->status);
-
+  //int mypid = p->pid;
+  //clock_t turn = <mypid>clock();
+  //cprintf("Turnaround Time: %f\n", turn/CLOCKS_PER_SEC); //print out analytics here
+  cprintf("Wait Time: %i\n", p->time_slices);
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;

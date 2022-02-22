@@ -138,7 +138,7 @@ static int (*syscalls[])(void) = {
 [SYS_waitS]   sys_waitS,      //part b
 [SYS_waitpid] sys_waitpid,    //part c
 [SYS_debug]   sys_debug,      //part e
-[SYS_set_prior] sys_set_prior //Lab2
+[SYS_set_prior] sys_set_prior, //Lab2
 };
 
 void
