@@ -7,6 +7,8 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "stdio.h"
+#include "limits.h"
+#include <time.h>
 
 struct {
   struct spinlock lock;
@@ -89,6 +91,8 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  //Sets priority value to 16
+  p->priority = 16;                                                   //Lab2
 
   release(&ptable.lock);
 
@@ -112,6 +116,10 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+
+  
+  // cprintf("Priority::::: %d\n", p->priority);
 
   return p;
 }
@@ -184,6 +192,7 @@ fork(void)
   int i, pid;
   struct proc *np;
   struct proc *curproc = myproc();
+  // clock_t start;
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -199,7 +208,13 @@ fork(void)
   }
   np->sz = curproc->sz;
   np->parent = curproc;
-  *np->tf = *curproc->tf;
+  *np->tf = *curproc->tf; 
+
+  //Stores the start time of the new forked process
+  // start = clock();
+  np->start_time = ticks;                                               //lab2
+  // cprintf("START TIME:::: %d\n", (double)start);
+
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -312,49 +327,6 @@ wait(void)
   }
 }
 
-//PAGEBREAK: 42
-// Per-CPU process scheduler.
-// Each CPU calls scheduler() after setting itself up.
-// Scheduler never returns.  It loops, doing:
-//  - choose a process to run
-//  - swtch to start running that process
-//  - eventually that process transfers control
-//      via swtch back to the scheduler.
-void
-scheduler(void)
-{
-  struct proc *p;
-  struct cpu *c = mycpu();
-  c->proc = 0;
-  
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
-
-    // Loop over process table looking for process to run.
-    acquire(&ptable.lock);
-    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
-        continue;
-
-      // Switch to chosen process.  It is the process's job
-      // to release ptable.lock and then reacquire it
-      // before jumping back to us.
-      c->proc = p;
-      switchuvm(p);
-      p->state = RUNNING;
-
-      swtch(&(c->scheduler), p->context);
-      switchkvm();
-
-      // Process is done running for now.
-      // It should have changed its p->state before coming back.
-      c->proc = 0;
-    }
-    release(&ptable.lock);
-
-  }
-}
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -710,10 +682,74 @@ void debug(void){
 }
 
 //Lab2 priority func
-void changepriority(int newPriority) {
-  struct proc *curproc = mrproc();
+int set_prior(int newPriority) {
+  struct proc *curproc = myproc();
+  // cprintf("Before Change: %d\n", curproc->priority);
 
   curproc->priority = newPriority;
+  // cprintf("After Change: %d\n", curproc->priority);
 
-  return;
+  // sched();
+
+  return 0;
+}
+
+//
+//PAGEBREAK: 42
+// Per-CPU process scheduler.
+// Each CPU calls scheduler() after setting itself up.
+// Scheduler never returns.  It loops, doing:
+//  - choose a process to run
+//  - swtch to start running that process
+//  - eventually that process transfers control
+//      via swtch back to the scheduler.
+void
+scheduler(void)
+{
+  struct proc *p, *pTemp;
+  struct cpu *c = mycpu();
+  c->proc = 0;
+  
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+    // Loop over process table looking for process to run.
+    acquire(&ptable.lock);
+
+    //Iterates thourgh the table to make sure there exist a runnable process.
+    pTemp = ptable.proc;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p-> state != RUNNABLE)
+        continue;
+      pTemp = p;    //Assigns a runnable process to the temp process
+    }
+
+    //Iterates a second time to find the Highest priorty process.
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p-> state != RUNNABLE)
+        continue;
+      if (p->priority  < pTemp->priority){
+        pTemp = p;
+      }
+    }
+    //Assigns highest priorty process to p
+    p = pTemp;
+  
+
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
+
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
+
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
+    release(&ptable.lock);
+
+  }
 }
