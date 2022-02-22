@@ -739,13 +739,6 @@ scheduler(void)
       cprintf("HIGHEST PRIO::: %d\n", highest_p);
     }
 
-    //Assigns highest priorty process to p
-    p = pTemp;
-    if (p->pid != 1){
-      cprintf("RUNNING::%d\n", p->pid);
-    }
-    
-
     //Aging ?
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if (p->priority == highest_p && p->priority < 30){
@@ -757,7 +750,12 @@ scheduler(void)
         p->priority--;
       }
     }
-
+    //Assigns highest priorty process to p
+    p = pTemp;
+    if (p->pid != 1){
+      cprintf("RUNNING::%d\n", p->pid);
+    }
+    
     // if(highest_p == p->priority){
     //   p->priority ++;
     //   highest_p ++;
