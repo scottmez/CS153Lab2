@@ -709,6 +709,7 @@ scheduler(void)
   struct proc *p, *pTemp;
   struct cpu *c = mycpu();
   c->proc = 0;
+  int highest_p = INT_MAX;
   
   for(;;){
     // Enable interrupts on this processor.
@@ -722,6 +723,7 @@ scheduler(void)
       if (p-> state != RUNNABLE)
         continue;
       pTemp = p;    //Assigns a runnable process to the temp process
+      // cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
     }
 
     //Iterates a second time to find the Highest priorty process.
@@ -730,10 +732,37 @@ scheduler(void)
         continue;
       if (p->priority  < pTemp->priority){
         pTemp = p;
+        highest_p = p->priority;
+        
       }
+      cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
+      cprintf("HIGHEST PRIO::: %d\n", highest_p);
     }
+
     //Assigns highest priorty process to p
     p = pTemp;
+    if (p->pid != 1){
+      cprintf("RUNNING::%d\n", p->pid);
+    }
+    
+
+    //Aging ?
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p->priority == highest_p && p->priority < 30){
+        p->priority++;
+        highest_p++;
+
+      }
+      else if (p->priority != highest_p && p->priority > 0){
+        p->priority--;
+      }
+    }
+
+    // if(highest_p == p->priority){
+    //   p->priority ++;
+    //   highest_p ++;
+    // }
+    
   
 
     // Switch to chosen process.  It is the process's job
