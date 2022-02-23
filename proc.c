@@ -93,6 +93,9 @@ found:
   p->pid = nextpid++;
   //Sets priority value to 16
   p->priority = 16;                                                   //Lab2
+  //Initialized time slices to 0
+  p->time_slices = 0;
+
 
   release(&ptable.lock);
 
@@ -211,9 +214,9 @@ fork(void)
   *np->tf = *curproc->tf; 
 
   //Stores the start time of the new forked process
-  // start = clock();
   np->start_time = ticks;                                               //lab2
-  // cprintf("START TIME:::: %d\n", (double)start);
+  // cprintf("START TIME:::: %d, :::: %d\n", ticks, np->pid);
+
 
 
   // Clear %eax so that fork returns 0 in the child.
@@ -276,6 +279,8 @@ exit(void)
         wakeup1(initproc);
     }
   }
+  //Calls system call for caluclated times                          Lab2
+  tw_time();
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -551,8 +556,8 @@ exitS(int status)
         wakeup1(initproc);
     }
   }
-  // cprintf("Status end  %d\n", curproc->status);
-
+  //Calls system call for caluclated times                          Lab2
+  tw_time();
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -689,7 +694,7 @@ int set_prior(int newPriority) {
   curproc->priority = newPriority;
   // cprintf("After Change: %d\n", curproc->priority);
 
-  // sched();
+  // yield();
 
   return 0;
 }
@@ -709,6 +714,7 @@ scheduler(void)
   struct proc *p, *pTemp;
   struct cpu *c = mycpu();
   c->proc = 0;
+  //Stores the highest prioriry number
   int highest_p = INT_MAX;
   
   for(;;){
@@ -730,47 +736,53 @@ scheduler(void)
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if (p-> state != RUNNABLE)
         continue;
+      //Updates which process has the highest priority.
       if (p->priority  < pTemp->priority){
         pTemp = p;
         highest_p = p->priority;
         
       }
-      cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
-      cprintf("HIGHEST PRIO::: %d\n", highest_p);
+      // cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
+      // cprintf("HIGHEST PRIO::: %d\n", highest_p);
     }
 
     //Aging ?
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      //Decreases prioriry of running processes.
       if (p->priority == highest_p && p->priority < 30){
         p->priority++;
         highest_p++;
 
       }
+      //Increases priority of waiting processes.
       else if (p->priority != highest_p && p->priority > 0){
         p->priority--;
       }
     }
+
     //Assigns highest priorty process to p
     p = pTemp;
-    if (p->pid != 1){
-      cprintf("RUNNING::%d\n", p->pid);
-    }
-    
-    // if(highest_p == p->priority){
-    //   p->priority ++;
-    //   highest_p ++;
+
+    // if (p->pid != 1){
+      // cprintf("RUNNING::%d\n", p->pid);
     // }
-    
   
 
     // Switch to chosen process.  It is the process's job
     // to release ptable.lock and then reacquire it
     // before jumping back to us.
     c->proc = p;
+    //Updates the Running process
+    p->time_slices++;
+    
     switchuvm(p);
     p->state = RUNNING;
 
     swtch(&(c->scheduler), p->context);
+    // if (p->pid != 1){
+    //   cprintf("tick end::: %d \n", ticks);
+    // }
+    
     switchkvm();
 
     // Process is done running for now.
@@ -779,4 +791,21 @@ scheduler(void)
     release(&ptable.lock);
 
   }
+}
+
+void 
+tw_time(void){
+  struct proc *curproc = myproc();
+  //Calculates the turnaround time of each process.
+  curproc->t_time = ticks - curproc->start_time;
+  // cprintf("END TIME::: %d\n", ticks);
+  cprintf("Process %d: \n", curproc->pid);
+  cprintf("--Start Time: %d\n", curproc->start_time);
+  cprintf("--Process Length: %d\n", curproc->time_slices);
+  cprintf("--Trunaround Time: %d\n", curproc->t_time);
+  cprintf("--Normalized Trunaround Time: %d\n", (curproc->t_time / curproc->time_slices));
+  cprintf("--Wait Time: %d\n", (curproc->t_time - curproc->time_slices));
+
+  // cprintf("END TIME::: %d\n", ticks);
+  return;
 }
