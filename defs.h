@@ -126,6 +126,7 @@ int             waitpid(int, int *, int); //part c
 void            debug();      //part e
 int             set_prior(int);
 void            tw_time();
+int             donate_prior(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

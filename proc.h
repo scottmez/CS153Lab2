@@ -54,6 +54,8 @@ struct proc {
   int start_time;           // Keeps track of process start time.
   int t_time;
   int time_slices;
+  int donated_p;
+  
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -164,3 +164,21 @@ sys_tw_time(void)
   tw_time();
   return 0;
 }
+
+int
+sys_getprior(void)
+{
+  return myproc()->priority;
+}
+
+int 
+sys_donate_prior(void)
+{
+   int prior_donated;
+
+  if (argint(0,&prior_donated) < 0){
+    return -1;
+  }
+  return donate_prior(prior_donated);
+}
+
