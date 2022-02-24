@@ -1,5 +1,3 @@
-#include <time.h>
-
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -53,8 +51,11 @@ struct proc {
   char name[16];               // Process name (debugging)
   int status;                  // success (0) or failure (else)
   int priority;                // priority 0-16, schedule highest priority first
-  double start_time;           // used to track scheduling performance
-  int time_slices;             // used to count time slices spent in RUNNING state but not being run
+  int start_time;           // Keeps track of process start time.
+  int t_time;
+  int time_slices;
+  int donated_p;
+  
 };
 
 // Process memory is laid out contiguously, low addresses first:

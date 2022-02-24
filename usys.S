@@ -35,3 +35,6 @@ SYSCALL(waitS)  //part b
 SYSCALL(waitpid)  //part c 
 SYSCALL(debug)    //part e
 SYSCALL(set_prior) //Lab2 
+SYSCALL(tw_time)
+SYSCALL(getprior)
+SYSCALL(donate_prior)

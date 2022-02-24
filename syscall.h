@@ -26,4 +26,7 @@
 #define SYS_waitS  24       //part b
 #define SYS_waitpid    25   //part c
 #define SYS_debug  26       //part e
-#define SYS_set_prior 27 //Lab2
+#define SYS_set_prior 27        //Lab 2
+#define SYS_tw_time  28         //Lab 2
+#define SYS_getprior  29        //Lab 2
+#define SYS_donate_prior 30     //Lab 2

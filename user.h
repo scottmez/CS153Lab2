@@ -30,6 +30,9 @@ int waitS(int*);                          //part b
 int waitpid(int, int*, int);              //part c
 int debug(void);                              //part e
 int set_prior(int);                  //Lab2
+int tw_time(void);
+int getprior(void);
+int donate_prior(void);
 
 // ulib.c
 int stat(const char*, struct stat*);
