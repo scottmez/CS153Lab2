@@ -7,7 +7,12 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "stdio.h"
+<<<<<<< HEAD
 #include <time.h> //using for start time in fork()
+=======
+#include "limits.h"
+#include <time.h>
+>>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
 
 struct {
   struct spinlock lock;
@@ -115,6 +120,10 @@ found:
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
 
+
+  
+  // cprintf("Priority::::: %d\n", p->priority);
+
   return p;
 }
 
@@ -186,6 +195,7 @@ fork(void) //need to create "start time"
   int i, pid;
   struct proc *np; //I think np stands for "next process" as in the one we're making with fork
   struct proc *curproc = myproc();
+  // clock_t start;
 
   // Allocate process.
   if((np = allocproc()) == 0){
@@ -206,7 +216,13 @@ fork(void) //need to create "start time"
   }
   np->sz = curproc->sz;
   np->parent = curproc;
-  *np->tf = *curproc->tf;
+  *np->tf = *curproc->tf; 
+
+  //Stores the start time of the new forked process
+  // start = clock();
+  np->start_time = ticks;                                               //lab2
+  // cprintf("START TIME:::: %d\n", (double)start);
+
 
   // Clear %eax so that fork returns 0 in the child.
   np->tf->eax = 0;
@@ -319,6 +335,7 @@ wait(void)
   }
 }
 
+<<<<<<< HEAD
 //PAGEBREAK: 42
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
@@ -369,6 +386,8 @@ scheduler(void)
 
   }
 }
+=======
+>>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -727,6 +746,7 @@ void debug(void){
 }
 
 //Lab2 priority func
+<<<<<<< HEAD
 int set_prior(int prior_lvl) {
   struct proc *curproc = myproc();
 
@@ -734,4 +754,103 @@ int set_prior(int prior_lvl) {
   sched(); //call sched() because the priority list has been changed
 
   return curproc->priority; //need to return an int so this will do for now
+=======
+int set_prior(int newPriority) {
+  struct proc *curproc = myproc();
+  // cprintf("Before Change: %d\n", curproc->priority);
+
+  curproc->priority = newPriority;
+  // cprintf("After Change: %d\n", curproc->priority);
+
+  // sched();
+
+  return 0;
+>>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
+}
+
+//
+//PAGEBREAK: 42
+// Per-CPU process scheduler.
+// Each CPU calls scheduler() after setting itself up.
+// Scheduler never returns.  It loops, doing:
+//  - choose a process to run
+//  - swtch to start running that process
+//  - eventually that process transfers control
+//      via swtch back to the scheduler.
+void
+scheduler(void)
+{
+  struct proc *p, *pTemp;
+  struct cpu *c = mycpu();
+  c->proc = 0;
+  int highest_p = INT_MAX;
+  
+  for(;;){
+    // Enable interrupts on this processor.
+    sti();
+    // Loop over process table looking for process to run.
+    acquire(&ptable.lock);
+
+    //Iterates thourgh the table to make sure there exist a runnable process.
+    pTemp = ptable.proc;
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p-> state != RUNNABLE)
+        continue;
+      pTemp = p;    //Assigns a runnable process to the temp process
+      // cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
+    }
+
+    //Iterates a second time to find the Highest priorty process.
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p-> state != RUNNABLE)
+        continue;
+      if (p->priority  < pTemp->priority){
+        pTemp = p;
+        highest_p = p->priority;
+        
+      }
+      cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
+      cprintf("HIGHEST PRIO::: %d\n", highest_p);
+    }
+
+    //Aging ?
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p->priority == highest_p && p->priority < 30){
+        p->priority++;
+        highest_p++;
+
+      }
+      else if (p->priority != highest_p && p->priority > 0){
+        p->priority--;
+      }
+    }
+    //Assigns highest priorty process to p
+    p = pTemp;
+    if (p->pid != 1){
+      cprintf("RUNNING::%d\n", p->pid);
+    }
+    
+    // if(highest_p == p->priority){
+    //   p->priority ++;
+    //   highest_p ++;
+    // }
+    
+  
+
+    // Switch to chosen process.  It is the process's job
+    // to release ptable.lock and then reacquire it
+    // before jumping back to us.
+    c->proc = p;
+    switchuvm(p);
+    p->state = RUNNING;
+
+    swtch(&(c->scheduler), p->context);
+    switchkvm();
+
+    // Process is done running for now.
+    // It should have changed its p->state before coming back.
+    c->proc = 0;
+    release(&ptable.lock);
+
+  }
 }
