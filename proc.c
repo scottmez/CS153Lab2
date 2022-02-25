@@ -89,6 +89,12 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  p->priority = 10;
+  p->aging = 0;
+  p->time_slices = 0;
+  p->start_time = ticks; //starts counting of time 
+  //p->start_time = 0;
+  //p->t_time = 0;
 
   release(&ptable.lock);
 
@@ -323,10 +329,10 @@ wait(void)
 void
 scheduler(void) 
 {
-  struct proc *p, *pTemp;//, *pAge;
+  struct proc *p, *pTemp, *pAge;
   struct cpu *c = mycpu();
   c->proc = 0;
-  //int start_p = 0;
+  int start_p = 0;
   //Stores the highest prioriry number
   // int highest_p = INT_MAX;
   
@@ -361,22 +367,26 @@ scheduler(void)
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      //start_p = ticks;
+      start_p = ticks;
       c->proc = p;    
       switchuvm(p);
       p->state = RUNNING;
-      // p->priority++;
+
+      if (p->aging == 1) {//if aging is on
+        p->priority++;
     
-      //Aging ?
-      // for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++){
-      //   //Increases priority of waiting processes.
-      //   if (pAge != p && pAge->priority > 0){
-      //     pAge->priority--;
-      //   }
-      // }    
+        //Aging 
+        for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++){
+        //Increases priority of waiting processes.
+        if (pAge != p && pAge->priority > 0){
+          pAge->priority--;
+        }
+        }   
+      } 
  
       swtch(&(c->scheduler), p->context);
-      //p->time_slices += (ticks - start_p);
+
+      p->time_slices += (ticks - start_p);
 
       switchkvm();
 
@@ -614,7 +624,6 @@ exitS(int status)
   }
   // cprintf("Status end  %d\n", curproc->status);
 
-
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
@@ -749,4 +758,27 @@ int set_prior(int newPriority) {
   curproc->priority = newPriority;
 
   return 0;
+}
+
+int set_aging(int isAging) { //if 1 aging else, not
+  struct proc *c = myproc();
+
+  c->aging = isAging;
+
+  return 0;
+}
+
+void 
+tw_time(void){
+  struct proc *curproc = myproc();
+  //Calculates the turnaround time of each process.
+  curproc->t_time = ticks - curproc->start_time;
+  cprintf("----------------------------------\n");
+  cprintf("Process %d Fields: \n", curproc->pid);
+  cprintf("--Process Length: %d\n", curproc->time_slices);
+  cprintf("--Normalized Turnaround Time: %d\n", (curproc->t_time / curproc->time_slices));
+  cprintf("--Wait Time: %d\n", (curproc->t_time - curproc->time_slices));
+  cprintf("----------------------------------\n"); 
+
+  return;
 }

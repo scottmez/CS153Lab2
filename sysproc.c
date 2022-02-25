@@ -163,3 +163,21 @@ sys_getprior(void)
 {
   return myproc()->priority;
 }
+
+int 
+sys_set_aging(void)
+{
+   int isAging;
+
+   if (argint(0, &isAging) < 0){
+    return -1;
+  }
+  return set_aging(isAging);
+}
+
+int
+sys_tw_time(void)
+{
+  tw_time();
+  return 0;
+}

@@ -52,6 +52,9 @@ struct proc {
   int status;                  // success (0) or failure (else)
   int priority;                // priority 0-16, schedule highest priority first
   int time_slices;
+  int aging;                   // If 1, use aging, otherwise don't
+  int start_time;
+  int t_time;
 };
 
 // Process memory is laid out contiguously, low addresses first:

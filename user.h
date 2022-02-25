@@ -31,6 +31,8 @@ int waitpid(int, int*, int);              //part c
 int debug(void);                              //part e
 int set_prior(int);                  //Lab2
 int getprior(void);                       //Lab2
+int set_aging(int);                       //Lab2
+int tw_time(void);                        //Lab2
 
 // ulib.c
 int stat(const char*, struct stat*);

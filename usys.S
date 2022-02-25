@@ -36,3 +36,5 @@ SYSCALL(waitpid)  //part c
 SYSCALL(debug)    //part e
 SYSCALL(set_prior) //Lab2 
 SYSCALL(getprior)       //Lab2
+SYSCALL(set_aging) //Lab2
+SYSCALL(tw_time) //Lab2

@@ -27,3 +27,5 @@
 #define SYS_debug  26       //part e
 #define SYS_set_prior 27      //Lab2
 #define SYS_getprior 28       //Lab2
+#define SYS_set_aging 29      //Lab2
+#define SYS_tw_time 30        //Lab2
