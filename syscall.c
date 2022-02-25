@@ -108,7 +108,11 @@ extern int sys_exitS(void);     //part a
 extern int sys_waitS(void);     //part b
 extern int sys_waitpid(void);   //part c
 extern int sys_debug(void);     //part e
-extern int sys_changepriority(void); //Lab2
+extern int sys_set_prior(void); //Lab2
+extern int sys_getprior(void);        //Lab2
+extern int sys_set_aging(void);       //Lab2
+extern int sys_tw_time(void);         //Lab2
+extern int sys_output_flag(void);     //Lab2
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -138,7 +142,11 @@ static int (*syscalls[])(void) = {
 [SYS_waitS]   sys_waitS,      //part b
 [SYS_waitpid] sys_waitpid,    //part c
 [SYS_debug]   sys_debug,      //part e
-[SYS_changepriority] sys_changepriority //Lab2
+[SYS_set_prior] sys_set_prior, //Lab2
+[SYS_getprior] sys_getprior,   //Lab2
+[SYS_set_aging] sys_set_aging, //Lab2
+[SYS_tw_time] sys_tw_time,  //Lab2
+[SYS_output_flag] sys_output_flag //Lab2
 };
 
 void

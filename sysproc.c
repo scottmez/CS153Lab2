@@ -148,12 +148,47 @@ sys_debug(void)
 }
 
 int 
-sys_changepriority(void)
+sys_set_prior(void)
 {
    int newPriority;
 
    if (argint(0, &newPriority) < 0){
     return -1;
   }
-  return waitS(newPriority);
+  return set_prior(newPriority);
+}
+
+int
+sys_getprior(void)
+{
+  return myproc()->priority;
+}
+
+int 
+sys_set_aging(void)
+{
+   int isAging;
+
+   if (argint(0, &isAging) < 0){
+    return -1;
+  }
+  return set_aging(isAging);
+}
+
+int
+sys_tw_time(void)
+{
+  tw_time();
+  return 0;
+}
+
+int 
+sys_output_flag(void)
+{
+   int isOutput;
+
+   if (argint(0, &isOutput) < 0){
+    return -1;
+  }
+  return output_flag(isOutput);
 }
