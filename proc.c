@@ -7,12 +7,7 @@
 #include "proc.h"
 #include "spinlock.h"
 #include "stdio.h"
-<<<<<<< HEAD
-#include <time.h> //using for start time in fork()
-=======
 #include "limits.h"
-#include <time.h>
->>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
 
 struct {
   struct spinlock lock;
@@ -22,6 +17,7 @@ struct {
 static struct proc *initproc;
 
 int nextpid = 1;
+int MAX_PRIORITY = 31;
 extern void forkret(void);
 extern void trapret(void);
 
@@ -95,17 +91,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-<<<<<<< HEAD
   p->priority = 16; // initialize priority (given lowest by default)
-=======
-  //Sets priority value to 16
-  p->priority = 16;                                                   //Lab2
-  //Initialized time slices to 0
-  p->time_slices = 0;
-  //Initialized donated priority
-  p->donated_p = INT_MAX;
-
->>>>>>> 9ced4c2a18fdef36c62ecc544c07e3410acca6f6
 
   release(&ptable.lock);
 
@@ -129,6 +115,9 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+
+  
   // cprintf("Priority::::: %d\n", p->priority);
 
   return p;
@@ -208,11 +197,6 @@ fork(void) //need to create "start time"
   if((np = allocproc()) == 0){
     return -1;
   }
-  //now we know that process has been allocated (but not running yet)
-  np->start_time = ticks; //basically like clock() but clock() needs a process to reference and this one technically hasnt started yet so '0' will do
-  cprintf("start time %lf of %i\n", np->start_time, np->pid);
-  np->time_slices = 0; //initialize time_slices too
-
 
   // Copy process state from proc.
   if((np->pgdir = copyuvm(curproc->pgdir, curproc->sz)) == 0){
@@ -225,10 +209,10 @@ fork(void) //need to create "start time"
   np->parent = curproc;
   *np->tf = *curproc->tf; 
 
-  //Stores the start time of the new forked process
-  np->start_time = ticks;                                               //lab2
-  cprintf("START TIME:::: %d, :::: %d\n", ticks, np->pid);
-
+  np->start_time = ticks; //basically like clock() but clock() needs a process to reference and this one technically hasnt started yet so '0' will do
+  // cprintf("start time %d of %d\n", np->start_time, np->pid);
+  np->time_slices = 0; //initialize time_slices too                                            //lab2
+  // cprintf("START TIME:::: %d\n", (double)start);
 
 
   // Clear %eax so that fork returns 0 in the child.
@@ -293,11 +277,13 @@ exit(void)
   }
   //Calls system call for caluclated times                          Lab2
   tw_time();
+  int temp = curproc->priority;
   curproc->priority = curproc->donated_p;
-  curproc->donated_p = INT_MAX;
+  curproc->donated_p = temp;
 
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
+  release(&ptable.lock); //added
   sched();
   panic("zombie exit");
 }
@@ -345,60 +331,6 @@ wait(void)
     sleep(curproc, &ptable.lock);  //DOC: wait-sleep
   }
 }
-
-<<<<<<< HEAD
-//PAGEBREAK: 42
-// Per-CPU process scheduler.
-// Each CPU calls scheduler() after setting itself up.
-// Scheduler never returns.  It loops, doing:
-//  - choose a process to run
-//  - swtch to start running that process
-//  - eventually that process transfers control
-//      via swtch back to the scheduler.
-void
-scheduler(void)
-{
-  struct proc *p;
-  struct cpu *c = mycpu();
-  c->proc = 0;
-  
-  for(;;){
-    // Enable interrupts on this processor.
-    sti();
-
-    // Loop over process table looking for process to run.
-    
-    acquire(&ptable.lock);
-    for(p= ptable.proc; p < &ptable.proc[NPROC];p++){
-      if(p->state != RUNNABLE) 
-        continue;
-      //
-      if (c->proc->priority  <  p->priority) {
-        c->proc = p;
-      }
-    }
-
-    // Switch to chosen process.  It is the process's job
-    // to release ptable.lock and then reacquire it
-    // before jumping back to us.
-
-    //c->proc = p;
-    switchuvm(p);
-    p->state = RUNNING;
-
-    swtch(&(c->scheduler), p->context);
-    switchkvm();
-
-    // Process is done running for now.
-    // It should have changed its p->state before coming back.
-    c->proc = 0;
-    
-    release(&ptable.lock);
-
-  }
-}
-=======
->>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
 
 // Enter scheduler.  Must hold only ptable.lock
 // and have changed proc->state. Saves and restores
@@ -608,12 +540,10 @@ exitS(int status)
   end_op();
   curproc->cwd = 0;
 
-  acquire(&ptable.lock);
+  //acquire(&ptable.lock);
 
   // Parent might be sleeping in wait().
   wakeup1(curproc->parent);
-
-  
 
   // Pass abandoned children to init.
   for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -623,19 +553,16 @@ exitS(int status)
         wakeup1(initproc);
     }
   }
-<<<<<<< HEAD
-  // cprintf("Status end  %d\n", curproc->status);
-  //int mypid = p->pid;
-  //clock_t turn = <mypid>clock();
-  //cprintf("Turnaround Time: %f\n", turn/CLOCKS_PER_SEC); //print out analytics here
-  cprintf("Wait Time: %i\n", p->time_slices);
-=======
+
   //Calls system call for caluclated times                          Lab2
   tw_time();
->>>>>>> 9ced4c2a18fdef36c62ecc544c07e3410acca6f6
-
+  int temp = curproc->priority;
+  curproc->priority = curproc->donated_p;
+  curproc->donated_p = temp;
+  
   // Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
+  //release(&ptable.lock);
   sched();
   panic("zombie exit");
 }
@@ -754,44 +681,78 @@ void debug(void){
   //   int status;                  // success (0) or failure (else)
   // };
   struct proc *curproc = myproc();
-
+  //acquire(&ptable.lock);
   cprintf("\nPID:%d\n", curproc->pid);
   cprintf("\nstatus:%d\n", curproc->status);
+  //release(&ptable.lock);
 
   return;
 }
 
 //Lab2 priority func
-<<<<<<< HEAD
-int set_prior(int prior_lvl) {
-  struct proc *curproc = myproc();
-
-  curproc->priority = prior_lvl;
-  sched(); //call sched() because the priority list has been changed
-
-  return curproc->priority; //need to return an int so this will do for now
-=======
 int set_prior(int newPriority) {
   struct proc *curproc = myproc();
   // cprintf("Before Change: %d\n", curproc->priority);
-
+  //acquire(&ptable.lock);
   curproc->priority = newPriority;
   // cprintf("After Change: %d\n", curproc->priority);
-
-  // scheduler();
+  
+  //sched();
+  //release(&ptable.lock);
 
   return 0;
->>>>>>> 41d4c83ceccd83839dfa7ae9759d4e2ac77d3ba0
+}
+
+//Lab2 priority func
+int get_prior_pid(int process_id) {
+  struct proc *p;
+  struct proc *curproc = myproc();
+  
+  //acquire(&ptable.lock);
+  if (curproc->pid == process_id) {
+    //release(&ptable.lock);
+    return curproc->priority;
+  }
+
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p->pid == process_id) {//makes sure it has a pid equal to the pid argument
+        //release(&ptable.lock);
+        return p->priority;
+      }
+  }
+
+  //release(&ptable.lock);
+  return -1; //error process_id not found
+}
+
+void 
+tw_time(void){
+  struct proc *curproc = myproc();
+  //Calculates the turnaround time of each process.
+  //acquire(&ptable.lock);
+  curproc->t_time = ticks - curproc->start_time;
+  // cprintf("END TIME::: %d\n", ticks);
+  cprintf("Process %d: \n", curproc->pid);
+  cprintf("--Start Time: %d\n", curproc->start_time);
+  cprintf("--Process Length: %d\n", curproc->time_slices);
+  cprintf("--Turnaround Time: %d\n", curproc->t_time);
+  cprintf("--Normalized Turnaround Time: %d\n", (curproc->t_time / curproc->time_slices));
+  cprintf("--Wait Time: %d\n", (curproc->t_time - curproc->time_slices));
+  //release(&ptable.lock);
+
+  // cprintf("END TIME::: %d\n", ticks);
+  return;
 }
 
 int donate_prior(int donated) {
   struct proc *curproc = myproc();
   // cprintf("Before Change: %d\n", curproc->priority);
-  curproc->donated_p = curproc ->priority;
+  //acquire(&ptable.lock);
+  curproc->donated_p = curproc->priority;
   curproc->priority = donated;
+  //release(&ptable.lock);
   return 0;
 }
-
 
 //
 //PAGEBREAK: 42
@@ -803,7 +764,7 @@ int donate_prior(int donated) {
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 void
-scheduler(void)
+scheduler(void) 
 {
   struct proc *p, *pTemp, *pAge;
   struct cpu *c = mycpu();
@@ -824,83 +785,48 @@ scheduler(void)
       if (p-> state != RUNNABLE)
         continue;
       pTemp = p;    //Assigns a runnable process to the temp process
-      // cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
     }
 
     //Iterates a second time to find the Highest priorty process.
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
       if (p-> state != RUNNABLE)
         continue;
-      //Updates which process has the highest priority.
       if (p->priority  < pTemp->priority){
         pTemp = p;
-        // highest_p = p->priority;
-        
+        // highest_p = p->priority;    
       }
-      // cprintf("Process::%d and Priority::%d\n", p->pid, p->priority);
-      // cprintf("HIGHEST PRIO::: %d\n", highest_p);
     }
-    start_p = ticks;
+      //Assigns highest priorty process to p
+      p = pTemp;
+      
 
-    //Assigns highest priorty process to p
-    p = pTemp;
-
-
-
-    //Updates the Running process
-    // p->time_slices++;
-
-    // if (p->pid != 1){
-    //   cprintf("RUNNING::%d\n", p->pid);
-    // }
-
-    // Switch to chosen process.  It is the process's job
-    // to release ptable.lock and then reacquire it
-    // before jumping back to us.
-    c->proc = p;    
-    switchuvm(p);
-    p->state = RUNNING;
-    p->priority++;
+      // Switch to chosen process.  It is the process's job
+      // to release ptable.lock and then reacquire it
+      // before jumping back to us.
+      start_p = ticks;
+      c->proc = p;    
+      switchuvm(p);
+      p->state = RUNNING;
+      p->priority++;
     
-    //Aging ?
-    for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++){
-      //Increases priority of waiting processes.
-      if (pAge != p && pAge->priority > 0){
-        pAge->priority--;
-      }
-    }    
-    
-    
-    swtch(&(c->scheduler), p->context);
-    p->time_slices += (ticks - start_p);
-    switchkvm();
+      //Aging ?
+      for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++){
+        //Increases priority of waiting processes.
+        if (pAge != p && pAge->priority > 0){
+          pAge->priority--;
+        }
+      }    
+ 
+      swtch(&(c->scheduler), p->context);
+      p->time_slices += (ticks - start_p);
 
-    // Process is done running for now.
-    // It should have changed its p->state before coming back.
-    c->proc = 0;
+      switchkvm();
+
+      // Process is done running for now.
+      // It should have changed its p->state before coming back.
+      c->proc = 0;
+
     release(&ptable.lock);
 
   }
 }
-<<<<<<< HEAD
-=======
-
-void 
-tw_time(void){
-  struct proc *curproc = myproc();
-  //Calculates the turnaround time of each process.
-  curproc->t_time = ticks - curproc->start_time;
-  // cprintf("END TIME::: %d\n", ticks);
-  cprintf("Process %d: \n", curproc->pid);
-  cprintf("--Start Time: %d\n", curproc->start_time);
-  cprintf("--Process Length: %d\n", curproc->time_slices);
-  cprintf("--Turnaround Time: %d\n", curproc->t_time);
-  cprintf("--Normalized Turnaround Time: %d\n", (curproc->t_time / curproc->time_slices));
-  cprintf("--Wait Time: %d\n", (curproc->t_time - curproc->time_slices));
-
-  // cprintf("--Wait Time: %d\n", ((curproc->t_time - curproc->time_slices) < 0 ? 0: (curproc->t_time - curproc->time_slices)));
-
-  // cprintf("END TIME::: %d\n", ticks);
-  return;
-}
->>>>>>> 9ced4c2a18fdef36c62ecc544c07e3410acca6f6

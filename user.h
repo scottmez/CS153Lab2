@@ -29,10 +29,11 @@ int exitS(int) __attribute__((noreturn)); //part a
 int waitS(int*);                          //part b
 int waitpid(int, int*, int);              //part c
 int debug(void);                              //part e
-int set_prior(int);                  //Lab2
-int tw_time(void);
-int getprior(void);
-int donate_prior(void);
+int set_prior(int);                  //Lab 2
+int tw_time(void);                   //Lab 2
+int getprior(void);                  //Lab 2
+int donate_prior(void);              //Lab 2
+int get_prior_pid(int);              //Lab 2
 
 // ulib.c
 int stat(const char*, struct stat*);

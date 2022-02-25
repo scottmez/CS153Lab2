@@ -100,23 +100,23 @@ int aging(void){
         set_prior(15);
         
         for (j=0;j<5;j++) {
-            printf(1, "Child: %d Prio: %d\n",getpid(),getprior());
+            printf(1, "Child: %d Prio: %d\n",getpid(),get_prior_pid(pid));
             for(k=0;k<50000;k++) {
                 asm("nop"); 
             }
         }
-        printf(1, "\n child# %d with priority %d has finished! \n",getpid(),getprior());		
+        printf(1, "\n child# %d with priority %d has finished! \n",getpid(),get_prior_pid(pid));		
         exit();
     }
 
     if(pid > 0) {
         for(k=0;k<5;k++) {
-            printf(1, "Parent: %d Prio: %d\n",getpid(),getprior());
+            printf(1, "Parent: %d Prio: %d\n",getpid(),get_prior_pid(pid));
             for(j=0;j<50000;j++) {
                 asm("nop"); 
             }
         }
-        printf(1, "\n parent# %d with priority %d has finished! \n",getpid(),getprior());
+        printf(1, "\n parent# %d with priority %d has finished! \n",getpid(),get_prior_pid(pid));
         waitS(0);
     }
     

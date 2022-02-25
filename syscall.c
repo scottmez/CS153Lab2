@@ -112,6 +112,7 @@ extern int sys_set_prior(void);       //Lab 2
 extern int sys_tw_time(void);         //Lab 2
 extern int sys_getprior(void);        //Lab 2
 extern int sys_donate_prior(void);    //Lab 2
+extern int sys_get_prior_pid(void);   //Lab 2
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -141,10 +142,11 @@ static int (*syscalls[])(void) = {
 [SYS_waitS]   sys_waitS,      //part b
 [SYS_waitpid] sys_waitpid,    //part c
 [SYS_debug]   sys_debug,      //part e
-[SYS_set_prior] sys_set_prior,            //Lab2
-[SYS_tw_time] sys_tw_time,                //Lab2
-[SYS_getprior] sys_getprior,              //Lab2
-[SYS_donate_prior] sys_donate_prior,
+[SYS_set_prior] sys_set_prior,            //Lab 2
+[SYS_tw_time] sys_tw_time,                //Lab 2
+[SYS_getprior] sys_getprior,              //Lab 2
+[SYS_donate_prior] sys_donate_prior,      //Lab 2
+[SYS_get_prior_pid] sys_get_prior_pid,    //Lab 2
 };
 
 void

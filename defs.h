@@ -124,9 +124,11 @@ void            exitS(int); //part a
 int             waitS(int *); //part b
 int             waitpid(int, int *, int); //part c
 void            debug();      //part e
-int             set_prior(int); //Lab2
-void            tw_time();
-int             donate_prior(int);
+int             set_prior(int);         //Lab 2
+void            tw_time();              //Lab 2
+int             getprior();             //Lab 2
+int             donate_prior(int);      //Lab 2
+int             get_prior_pid(int);     //Lab 2
 
 // swtch.S
 void            swtch(struct context**, struct context*);

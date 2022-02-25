@@ -171,6 +171,17 @@ sys_getprior(void)
   return myproc()->priority;
 }
 
+int
+sys_get_prior_pid(void)
+{
+  int process_id;
+
+  if (argint(0, &process_id) < 0){
+    return -1;
+  }
+  return get_prior_pid(process_id);
+}
+
 int 
 sys_donate_prior(void)
 {

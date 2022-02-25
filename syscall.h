@@ -30,3 +30,4 @@
 #define SYS_tw_time  28         //Lab 2
 #define SYS_getprior  29        //Lab 2
 #define SYS_donate_prior 30     //Lab 2
+#define SYS_get_prior_pid 31    //Lab 2
