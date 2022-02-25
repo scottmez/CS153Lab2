@@ -321,36 +321,69 @@ wait(void)
 //  - eventually that process transfers control
 //      via swtch back to the scheduler.
 void
-scheduler(void)
+scheduler(void) 
 {
-  struct proc *p;
+  struct proc *p, *pTemp;//, *pAge;
   struct cpu *c = mycpu();
   c->proc = 0;
+  //int start_p = 0;
+  //Stores the highest prioriry number
+  // int highest_p = INT_MAX;
   
   for(;;){
     // Enable interrupts on this processor.
     sti();
-
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
+
+    //Iterates thourgh the table to make sure there exist a runnable process.
+    pTemp = ptable.proc;
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-      if(p->state != RUNNABLE)
+      if (p-> state != RUNNABLE)
         continue;
+      pTemp = p;    //Assigns a runnable process to the temp process
+      break;
+    }
+
+    //Iterates a second time to find the Highest priorty process.
+    for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+      if (p-> state != RUNNABLE)
+        continue;
+      if (p->priority < pTemp->priority){
+        pTemp = p;
+        // highest_p = p->priority;    
+      }
+    }
+      //Assigns highest priorty process to p
+      p = pTemp;
+      
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
       // before jumping back to us.
-      c->proc = p;
+      //start_p = ticks;
+      c->proc = p;    
       switchuvm(p);
       p->state = RUNNING;
-
+      // p->priority++;
+    
+      //Aging ?
+      // for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++){
+      //   //Increases priority of waiting processes.
+      //   if (pAge != p && pAge->priority > 0){
+      //     pAge->priority--;
+      //   }
+      // }    
+ 
       swtch(&(c->scheduler), p->context);
+      //p->time_slices += (ticks - start_p);
+
       switchkvm();
 
       // Process is done running for now.
       // It should have changed its p->state before coming back.
       c->proc = 0;
-    }
+
     release(&ptable.lock);
 
   }
@@ -710,10 +743,10 @@ void debug(void){
 }
 
 //Lab2 priority func
-void changepriority(int newPriority) {
-  struct proc *curproc = mrproc();
+int set_prior(int newPriority) {
+  struct proc *curproc = myproc();
 
   curproc->priority = newPriority;
 
-  return;
+  return 0;
 }

@@ -51,6 +51,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   int status;                  // success (0) or failure (else)
   int priority;                // priority 0-16, schedule highest priority first
+  int time_slices;
 };
 
 // Process memory is laid out contiguously, low addresses first:

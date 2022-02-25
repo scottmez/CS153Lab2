@@ -148,12 +148,18 @@ sys_debug(void)
 }
 
 int 
-sys_changepriority(void)
+sys_set_prior(void)
 {
    int newPriority;
 
    if (argint(0, &newPriority) < 0){
     return -1;
   }
-  return waitS(newPriority);
+  return set_prior(newPriority);
+}
+
+int
+sys_getprior(void)
+{
+  return myproc()->priority;
 }
