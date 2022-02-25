@@ -192,3 +192,14 @@ sys_output_flag(void)
   }
   return output_flag(isOutput);
 }
+
+int
+sys_donate(void)
+{
+  int isOutput;
+
+   if (argint(0, &isOutput) < 0){
+    return -1;
+  }
+  return donate(isOutput);
+}

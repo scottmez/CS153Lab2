@@ -30,3 +30,4 @@
 #define SYS_set_aging 29      //Lab2
 #define SYS_tw_time 30        //Lab2
 #define SYS_output_flag 31    //Lab2
+#define SYS_donate 32         //Lab2

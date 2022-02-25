@@ -56,6 +56,7 @@ struct proc {
   int start_time;
   int t_time;
   int outputFlag;             // If 1, use outputFlag, otherwise don't
+  int donate;                 //
 };
 
 // Process memory is laid out contiguously, low addresses first:

@@ -34,6 +34,7 @@ int getprior(void);                       //Lab2
 int set_aging(int);                       //Lab2
 int tw_time(void);                        //Lab2
 int output_flag(int);                     //Lab2
+int donate(int);                          //Lab2
 
 // ulib.c
 int stat(const char*, struct stat*);

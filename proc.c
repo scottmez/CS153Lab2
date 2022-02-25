@@ -94,6 +94,7 @@ found:
   p->time_slices = 0;
   p->start_time = ticks; //starts counting of time 
   p->outputFlag = 0;
+  p->donate = 1;
   //p->start_time = 0;
   //p->t_time = 0;
 
@@ -386,6 +387,19 @@ scheduler(void)
         }
         }   
       } 
+    
+      for(pAge = ptable.proc; pAge < &ptable.proc[NPROC]; pAge++) {
+        if (pAge->state != RUNNABLE)
+          continue;
+        pAge->donate++;
+        //cprintf("pid: %d donate: %d donate incremented\n", pAge->pid, pAge->donate);
+        if (pAge->donate == 0) { //request priority of current process
+          //cprintf("------------------------priority donated\n");
+          pAge->priority = p->priority; 
+          p->priority++;
+        }
+      }
+
  
       swtch(&(c->scheduler), p->context);
 
@@ -794,6 +808,15 @@ int output_flag(int isOutput) { //if 1 aging else, not
   struct proc *c = myproc();
 
   c->outputFlag = isOutput;
+
+  return 0;
+}
+
+int donate(int isOutput) { //if 1 aging else, not
+  struct proc *c = myproc();
+
+  c->donate = isOutput;
+  //cprintf("%d\n", c->donate);
 
   return 0;
 }
