@@ -55,6 +55,7 @@ struct proc {
   int aging;                   // If 1, use aging, otherwise don't
   int start_time;
   int t_time;
+  int outputFlag;             // If 1, use outputFlag, otherwise don't
 };
 
 // Process memory is laid out contiguously, low addresses first:

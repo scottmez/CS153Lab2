@@ -38,3 +38,4 @@ SYSCALL(set_prior) //Lab2
 SYSCALL(getprior)       //Lab2
 SYSCALL(set_aging) //Lab2
 SYSCALL(tw_time) //Lab2
+SYSCALL(output_flag) //Lab2

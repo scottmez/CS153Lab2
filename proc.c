@@ -93,6 +93,7 @@ found:
   p->aging = 0;
   p->time_slices = 0;
   p->start_time = ticks; //starts counting of time 
+  p->outputFlag = 0;
   //p->start_time = 0;
   //p->t_time = 0;
 
@@ -362,7 +363,9 @@ scheduler(void)
     }
       //Assigns highest priorty process to p
       p = pTemp;
-      
+      if (p->outputFlag == 1 && p->pid >2){
+        cprintf("Process: %d Running with priority:: %d\n", p->pid, p->priority);
+      }
 
       // Switch to chosen process.  It is the process's job
       // to release ptable.lock and then reacquire it
@@ -755,7 +758,11 @@ void debug(void){
 int set_prior(int newPriority) {
   struct proc *curproc = myproc();
 
+  if (curproc->outputFlag == 1) {
+    cprintf("Process %d Priority Changed (%d -> %d)\n", curproc->pid, curproc->priority, newPriority);
+  }
   curproc->priority = newPriority;
+
 
   return 0;
 }
@@ -781,4 +788,12 @@ tw_time(void){
   cprintf("----------------------------------\n"); 
 
   return;
+}
+
+int output_flag(int isOutput) { //if 1 aging else, not
+  struct proc *c = myproc();
+
+  c->outputFlag = isOutput;
+
+  return 0;
 }

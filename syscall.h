@@ -29,3 +29,4 @@
 #define SYS_getprior 28       //Lab2
 #define SYS_set_aging 29      //Lab2
 #define SYS_tw_time 30        //Lab2
+#define SYS_output_flag 31    //Lab2

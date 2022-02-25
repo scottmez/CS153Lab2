@@ -112,6 +112,7 @@ extern int sys_set_prior(void); //Lab2
 extern int sys_getprior(void);        //Lab2
 extern int sys_set_aging(void);       //Lab2
 extern int sys_tw_time(void);         //Lab2
+extern int sys_output_flag(void);     //Lab2
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -145,6 +146,7 @@ static int (*syscalls[])(void) = {
 [SYS_getprior] sys_getprior,   //Lab2
 [SYS_set_aging] sys_set_aging, //Lab2
 [SYS_tw_time] sys_tw_time,  //Lab2
+[SYS_output_flag] sys_output_flag //Lab2
 };
 
 void

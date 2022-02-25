@@ -181,3 +181,14 @@ sys_tw_time(void)
   tw_time();
   return 0;
 }
+
+int 
+sys_output_flag(void)
+{
+   int isOutput;
+
+   if (argint(0, &isOutput) < 0){
+    return -1;
+  }
+  return output_flag(isOutput);
+}

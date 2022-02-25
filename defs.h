@@ -127,6 +127,7 @@ void            debug();      //part e
 int             set_prior(int); //Lab2
 int             set_aging(int); //Lab2
 void            tw_time(void);  //Lab2
+int             output_flag(int);  //Lab2
 
 // swtch.S
 void            swtch(struct context**, struct context*);
